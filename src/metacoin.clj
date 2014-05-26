@@ -18,7 +18,27 @@
 
 (def ^java.util.concurrent.atomic.AtomicInteger id-num
   (java.util.concurrent.atomic.AtomicInteger.))
+
 (def not-nil? (comp not nil?))
+
+(defn valid-rpc-config?
+  [{:keys [rpcuser rpcpassword rpchost rpcport testnet]}]
+  (and (string? rpcuser)
+       (string? rpcpassword)
+       (string? rpchost)
+       (number? rpcport)
+       (not-nil? testnet)))
+
+(defn complete-rpc-config
+  [config]
+  (if-not (valid-rpc-config? config)
+    (let [new-cfg (merge (read-local-config
+                          (:coin config "bitcoin"))
+                         config)]
+      (assert (valid-rpc-config? new-cfg)
+              "Failed to build RPC configuration!")
+      new-cfg)
+    config))
 
 (defn- rpc-call
   "Perform rpc call of method with params, according to config.
@@ -41,14 +61,14 @@
 
 (defn- do-rpc
   [name doc args premap]
-  (let [args-form ['& {:keys (vec (cons 'config args))
-                       :or '{config (read-local-config)}}]
+  (let [args-form ['& {:keys (vec (cons 'config args))}]
         premap (merge-with (comp vec concat)
                            {:pre `[(map? ~'config)]}
                            premap)]
     `(defn ~name ~doc ~args-form
        ~premap
-       (let [params# (vec (take-while not-nil? ~args))]
+       (let [params# (vec (take-while not-nil? ~args))
+             ~'config (complete-rpc-config ~'config)]
          (rpc-call ~'config ~(str name) params#)))))
 
 (defmacro ^:private defrpc

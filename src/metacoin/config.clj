@@ -9,7 +9,7 @@
 
 (ns metacoin.config
   (:require [clojure.java.io :as jio])
-  (:require [clojure.string :refer (split)]))
+  (:require [clojure.string :refer [split capitalize]]))
 
 (set! *warn-on-reflection* true)
 
@@ -23,21 +23,30 @@
            (Boolean/parseBoolean inp)
            inp))))
 
-(defn- default-config-file
-  "Return the full path (as a vector of strings) to the default bitcoin.conf
+(defn default-config-file
+  "Return the full path (as a vector of strings) to the default *coin.conf
    file, by OS (default Linux). This is in accordance with
    https://en.bitcoin.it/wiki/Running_Bitcoin#Bitcoin.conf_Configuration_File"
-  []
+  [coin]
   (let [nix-data-dir #(System/getProperty "user.home")
         win-data-dir #(System/getenv "AppData")
-        os-name (System/getProperty "os.name")
-        path (case (first (split os-name #"\s"))
-               "Mac" [(nix-data-dir) "Library" "Application Support"
-                      "Bitcoin" "bitcoin.conf"]
-               "Windows" [(win-data-dir) "Bitcoin" "bitcoin.conf"]
-               ;; "Linux" is the default
-               [(nix-data-dir) ".bitcoin" "bitcoin.conf"])]
-    (str (apply jio/file path))))
+        os-name      (System/getProperty "os.name")]
+    (->> 
+         (case (first (split os-name #"\s"))
+           "Mac"     [(nix-data-dir) 
+                      "Library" 
+                      "Application Support" 
+                      (capitalize coin) 
+                      (str coin ".conf")]
+           "Windows" [(win-data-dir)
+                      (capitalize coin)
+                      (str coin ".conf")]
+           ;; "Linux" is the default
+           [(nix-data-dir)
+            (str "." coin)
+            (str coin ".conf")])
+         (apply jio/file)
+         str)))
 
 ;; Straight from http://stackoverflow.com/questions/7777882/loading-configuration-file-in-clojure-as-data-structure
 (defn parse-config [file-name]
@@ -57,5 +66,13 @@
 (defn read-local-config
   "Return a Map of properties from the given file, or from the default
    configuration file"
-  ([] (read-local-config (default-config-file)))
-  ([file-name] (parse-config file-name)))
+  ([]
+     (read-local-config 
+      (default-config-file)))
+
+  ([file-or-coin-name] 
+     (if (re-matches #".*coin" file-or-coin-name)
+       (parse-config
+        (default-config-file
+          file-or-coin-name))
+       (parse-config file-or-coin-name))))
