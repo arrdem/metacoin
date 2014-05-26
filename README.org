@@ -31,7 +31,7 @@
   =:rpcpassword :rpcuser :testnet :rpcport= and =:rpchost=. If any of
   these keys are missing, then the =:coin= key will be read to
   determine what coin you are trying to interact with. If the =:coin=
-  key is nil, then ="bitcoin"= will be used by default. The value of
+  key is nil, then "bitcoin" will be used by default. The value of
   =:coin= will be used to locate the appropriate coin config file and
   parse it into an options map. Settings passed in the options map
   take precidence over options set in the config file.
