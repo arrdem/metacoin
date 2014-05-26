@@ -7,11 +7,11 @@
 ;;;; by the terms of this license. You must not remove this notice, or
 ;;;; any other, from this software.
 
-(ns clj-btc.core
+(ns metacoin
   (:require [clojure.data.json :as json])
   (:require [org.httpkit.client :as http])
   (:require [clojure.java.io :as jio :refer (reader)])
-  (:require [clj-btc.config :refer (read-local-config)])
+  (:require [metacoin.config :refer (read-local-config)])
   (:import java.io.StringReader))
 
 (set! *warn-on-reflection* true)

@@ -1,68 +1,69 @@
-* clj-btc
-  Clojure bindings for the original (C++) Bitcoin Client json-rpc API.
-  For the full list of calls, see: [[https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list.][API calls list]]
-
+* Metacoin
+  Metacoin provides clojure bindings for several cryptocurrency
+  json-rpc APIs. Support is provided for Bitcoin, Litecoin, Dogecoin
+  and Namecoin. Patches adding support for other coins are welcome.
+  
 * Installation
-
+  
 ** [[https://github.com/technomancy/leiningen][leiningen]]
-   add this to your =project.clj='s =:dependencies=:
-
-  #+BEGIN_EXAMPLE
-  [clj-btc "0.1.1"]
-  #+END_EXAMPLE
-
-** [[http://maven.apache.org/][Maven]]
-  #+BEGIN_EXAMPLE
-  <dependency>
-    <groupId>clj-btc</groupId>
-    <artifactId>clj-btc</artifactId>
-    <version>0.1.1</version>
-  </dependency>
-  #+END_EXAMPLE
-
-
-* Usage
-
-   To call the method (for example) =getinfo= on a bitcoind according
-   to the local default =bitcoin.conf= file:
+   Add this to your =project.clj='s =:dependencies=:
+   
    #+BEGIN_EXAMPLE
-   user=> (require '[clj-btc.core :as btc])
+   [me.arrdem/metacoin "0.1.0-SNAPSHOT"]
+   #+END_EXAMPLE
+   
+* Usage
+  To call the method (for example) =getinfo= on a bitcoind according
+  to the local default =bitcoin.conf= file:
+  #+BEGIN_EXAMPLE
+   user=> (require '[metacoin :as m])
    ;;=> nil
-   user=> (btc/getinfo)
+   user=> (m/getinfo {:coin "bitcoin"})
    ;;=> {"timeoffset" 0, "protocolversion" 70001, "blocks" 111908, "errors" "",
          "testnet" true, "proxy" "", "connections" 4, "version" 80500,
          "keypoololdest" 1380388750, "paytxfee" 0E-8M,
          "difficulty" 4642.44443532M, "keypoolsize" 101, "balance" 0E-8M,
          "walletversion" 60000}
-   #+END_EXAMPLE
+  #+END_EXAMPLE
+  
+  Every API call will accept a configuration map as the first
+  argument. Configurations should contain the keys
+  =:rpcpassword :rpcuser :testnet :rpcport= and =:rpchost=. If any of
+  these keys are missing, then the =:coin= key will be read to
+  determine what coin you are trying to interact with. If the =:coin=
+  key is nil, then ="bitcoin"= will be used by default. The value of
+  =:coin= will be used to locate the appropriate coin config file and
+  parse it into an options map. Settings passed in the options map
+  take precidence over options set in the config file.
 
-   By default, *any* call on an rpc-method will read the (default) local
-   configuration file. However, since this is somewhat less than
-   efficient, it is possible to specify a configuration manually. The
-   configuration must contain the keys
-   =:rpcpassword :rpcuser :testnet :rpcport= and =:rpchost=.
-   #+BEGIN_EXAMPLE
+  When =:coin= is provided some checking is done to provide warnings
+  when unsupported API calls are made. For instance invoking methods
+  defined only over Namecoin with a configuration stating it was
+  built for Bitcoin will evoke a warning message to standard error
+  but will execute normally.
+
+  #+BEGIN_EXAMPLE
    user=> (def config {:rpcpassword "PASSWORD", :rpcuser "USR", :testnet true,
                        :rpcport 18332, :rpchost "http://127.0.0.1"})
    ;;=> #'user/config
-   user=> (btc/getbalace :config config)  ; no file is read to get configs
+   user=> (m/getbalace :config config) ; no file is read to get configs
    ;;=> 2.718281M
-   #+END_EXAMPLE
+  #+END_EXAMPLE
+  
+  It is possible to use a different configuration file by
+  passing its path to =metacoin.config/parse-config=:
 
-   It is also possible to use a different configuration file by
-   passing its path to =clj-btc.config/parse-config=:
-   #+BEGIN_EXAMPLE
-   user=> (require '[clj-btc.config :only (parse-config)])
+  #+BEGIN_EXAMPLE
+   user=> (require '[metacoin.config :only (parse-config)])
    ;;=> nil
    user=> (def config (parse-config "/path/to/my.conf"))
    ;;=> #'user/config
-   user=> (btc/getbalace :config config)  ; no file is read to get configs
+   user=> (m/getbalace :config config) ; no file is read to get configs
    ;;=> 777M
-   #+END_EXAMPLE
-
-
+  #+END_EXAMPLE
+  
+  
 * Future Work
-
   - [ ] Add tests for all the rpc methods.
   - [ ] Add types with [[https://github.com/clojure/core.typed][core.typed]].
   - [ ] Improve documentation with more examples.
@@ -70,13 +71,13 @@
 
 
 * Changes
-
   See CHANGES.org at the root of this repo.
 
-
+  
 * License
-
-  Copyright 2013 Aviad Reich.
+  Metacoin is derived from clj-btc, copyright 2013 Aviad Reich.
+  Metacoin is derived from clj-btc, copyright 2014 Sean Grove.
+  Metacoin is copyright 2014 Reid McKenzie.
 
   The use and distribution terms for this software are covered by the
   Apache License, Version 2.0

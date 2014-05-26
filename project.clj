@@ -1,8 +1,8 @@
-(defproject clj-btc "0.1.1"
-  :description "Clojure bindings for the original (C++) Bitcoin Client"
-  :url "https://github.com/aviad/clj-btc"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+(defproject me.arrdem/metacoin "0.1.0-SNAPSHOT"
+  :description "Clojure bindings for several coin RPC servers"
+  :url "https://github.com/arrdem/metacoin"
+  :license {:name "Apache License, Version 2.0"
+            :url "[[http://www.apache.org/licenses/LICENSE-2.0.txt"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/data.json "0.2.3"]
                  [http-kit "2.1.11"]
