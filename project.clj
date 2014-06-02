@@ -1,4 +1,4 @@
-(defproject me.arrdem/metacoin "0.1.0-SNAPSHOT"
+(defproject me.arrdem/metacoin (slurp "VERSION")
   :description "Clojure bindings for several coin RPC servers"
   :url "https://github.com/arrdem/metacoin"
   :license {:name "Apache License, Version 2.0"
