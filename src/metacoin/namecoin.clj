@@ -32,12 +32,12 @@
 (defrpc createrawtransaction
   "createrawtransaction [{\"txid\":txid,\"vout\":n},...] {address:amount,...}
 
-   Create a transaction spending given inputs
-   (array of objects containing transaction id and output number),
-   sending to given address(es).  Returns hex-encoded raw transaction.
-   Note that the transaction's inputs are not signed, and it is not
-   stored in the wallet or transmitted to the network."
-   [inputs? address-amount-maps])
+  Create a transaction spending given inputs
+  (array of objects containing transaction id and output number),
+  sending to given address(es).  Returns hex-encoded raw transaction.
+  Note that the transaction's inputs are not signed, and it is not
+  stored in the wallet or transmitted to the network."
+  [inputs? address-amount-maps])
 
 
 (defrpc decoderawtransaction
