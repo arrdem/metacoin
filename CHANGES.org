@@ -1,0 +1,18 @@
+* 0.1.2
+  - Add warnings on coin mismatch between config maps and methods.
+  - Add a default empty config map to the defrpc macro.
+  - Fix stupid compile time failures in namecoin's driver.
+  - Add real content to this changes list.
+
+* 0.1.1
+  - Restructure coin config file loading to support Namecoin and
+    Dogecoin as well as Bitcoin by adding a coin name parameter.
+  - Split the core namespace into a couple macros and a separate
+    bitcoin driver definition.
+  - Add a Namecoin driver with appropriate checks.
+  - Add a Dogecoin driver with appropriate checks.
+  - Fix up README to reflect changes in the project structure.
+
+* 0.1.0
+  - Forked from Sean Grove's fork of clj-btc which was forked from
+    Aviad Reich's clj-btc 0.1.1
