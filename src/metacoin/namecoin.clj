@@ -137,7 +137,7 @@
 
   Dumps the block existing at specified height."
   [height]
-  {:pre [(number height)]})
+  {:pre [(number? height)]})
 
 
 (defrpc getblockcount
@@ -208,8 +208,8 @@
     \"bits\" : compressed target of next block
   If [data] is specified, tries to solve the block and returns true if it was successful."
   [data?]
-  {:pre [(or (= nil data)
-             (string? data))]})
+  {:pre [(or (nil? data?)
+             (string? data?))]})
 
 
 (defrpc getnewaddress
@@ -325,7 +325,7 @@
   {:pre [(string? namecoinaddress)
          (or (nil? label?)
              (string? label?))
-         (and (not-nil? label)
+         (and (not-nil? label?)
               (not-nil? rescan?)
               (or (= true rescan?)
                   (= false rescan?)))]})
@@ -339,7 +339,7 @@
   {:pre [(string? namecoinprivkey)
          (or (nil? label?)
              (string? label?))
-         (and (not-nil? label)
+         (and (not-nil? label?)
               (not-nil? rescan?)
               (or (= true rescan?)
                   (= false rescan?)))]})
@@ -420,8 +420,8 @@
 
          (or (nil? count?)
              (and count?
-                  (or (nil? from)
-                      (number? from))))]})
+                  (or (nil? from?)
+                      (number? from?))))]})
 
 
 (defrpc listunspent
@@ -484,8 +484,8 @@
 
          (or (nil? comment?)
              (and comment?
-                  (or (string? to-comment?)
-                      (nil? to-comment?))))]})
+                  (or (string? comment-to?)
+                      (nil? comment-to?))))]})
 
 
 (defrpc sendmany
@@ -594,6 +594,13 @@
   {:pre [(string? namecoinaddress)
          (string? message)]})
 
+
+(defn output?
+  [{:keys [txid vout scriptPubKey] :as maybe}]
+  {:pre [(map? maybe)]}
+   (and (string? txid)
+        (number? vout)
+        (string? scriptPubKey)))
 
 (defrpc signrawtransaction
   "signrawtransaction <hex string> [{\"txid\":txid,\"vout\":n,\"scriptPubKey\":hex},...] [<privatekey1>,...] [sighashtype=\"ALL\"]
