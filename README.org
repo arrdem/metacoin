@@ -65,9 +65,7 @@
   
 * Future Work
   - [ ] Add tests for all the rpc methods.
-  - [ ] Add types with [[https://github.com/clojure/core.typed][core.typed]].
-  - [ ] Improve documentation with more examples.
-  - [ ] Add clojurescript support via =cljx=.
+  - [ ] Add more input verification.
 
 
 * Changes
@@ -75,6 +73,7 @@
 
   
 * License
+  #+BEGIN_SRC
   Metacoin is derived from clj-btc, copyright 2013 Aviad Reich.
   Metacoin is derived from clj-btc, copyright 2014 Sean Grove.
   Metacoin is copyright 2014 Reid McKenzie.
@@ -86,3 +85,4 @@
   software in any fashion, you are agreeing to be bound by the terms of
   this license. You must not remove this notice, or any other, from
   this software.
+  #+END_SRC
