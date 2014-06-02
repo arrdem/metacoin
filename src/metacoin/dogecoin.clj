@@ -142,7 +142,7 @@
   {:pre [(map? txids-map)
          (map? addrs-amounts-map)
          (every? validateaddress (keys addrs-amounts-map))
-         (evert? number? (vals addrs-amounts-map))]})
+         (every? number? (vals addrs-amounts-map))]})
 
 
 (defrpc decoderawtransaction
