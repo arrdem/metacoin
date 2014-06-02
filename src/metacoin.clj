@@ -62,7 +62,8 @@
 
 (defn do-rpc
   [coin name doc args premap]
-  (let [args-form ['& {:keys (vec (cons 'config args))}]
+  (let [args-form `[& {:keys [~'config ~@args]
+                        :or  {~'config {}}}]
         premap (merge-with (comp vec concat)
                            {:pre `[(map? ~'config)]}
                            premap)]
