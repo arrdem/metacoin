@@ -74,7 +74,7 @@
 
   Encrypts the wallet with <passphrase>."
   [passphrase]
-  {:pre [(string?? passphrase)]})
+  {:pre [(string? passphrase)]})
 
 
 (defrpc getaccount
