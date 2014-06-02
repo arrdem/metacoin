@@ -10,384 +10,538 @@
 (ns metacoin.namecoin
   (:require [metacoin :refer [not-nil?]]))
 
+
 (defmacro defrpc [& m0ar]
   `(metacoin/defrpc "namecoin" ~@m0ar))
 
-;;; Remote Procedure Calls
-(defrpc addmultisigaddress
-  "Add a nrequired-to-sign multisignature address to the wallet. Each key is
-   a bitcoin address or hex-encoded public key. If [account] is specified,
-   assign address to [account]."
-  [nrequired keys account]
-  {:pre [(integer? nrequired)
-         (vector? keys)]})
-
-;;; ToDo: change add-remove-onetry to keyword-based
-(defrpc addnode
-  "(version 0.8) Attempts add or remove <node> from the addnode list or try a
-   connection to <node> once."
-  [node add-remove-onetry]
-  {:pre [(string? node)
-         (string? add-remove-onetry)]})
 
 (defrpc backupwallet
-  "Safely copies wallet.dat to destination, which can be a directory or a path
-   with filename."
-  [destination]
-  {:pre [(string? destination)]})
+  "backupwallet <destination>
 
-(defrpc createmultisig
-  "Creates a multi-signature address and returns a json object"
-  [nrequired keys]
-  {:pre [(integer? nrequired)
-         (vector? keys)]})
+  Safely copies wallet.dat to destination, which can be a directory or a path with filename."
+  [destination])
+
+
+(defrpc buildmerkletree
+  "buildmerkletree <obj>...
+
+  build a merkle tree with the given hex-encoded objects."
+  [objs])
+
 
 (defrpc createrawtransaction
-  "(version 0.7) Creates a raw transaction spending given inputs:
-   [{\"txid\": txid \"vout\": n}...] {address:amount...}."
-  [txids-map addrs-amounts-map]
-  {:pre [(map? txids-map)
-         (map? addrs-amounts-map)]})
+  "createrawtransaction [{\"txid\":txid,\"vout\":n},...] {address:amount,...}
+
+   Create a transaction spending given inputs
+   (array of objects containing transaction id and output number),
+   sending to given address(es).  Returns hex-encoded raw transaction.
+   Note that the transaction's inputs are not signed, and it is not
+   stored in the wallet or transmitted to the network."
+   [inputs? address-amount-maps])
+
 
 (defrpc decoderawtransaction
-  "(version 0.7) Produces a human-readable JSON object for a raw transaction."
-  [hex-string]
-  {:pre (string? hex-string)})
+  "decoderawtransaction <hex string>
+
+  Return a JSON object representing the serialized, hex-encoded transaction."
+  [hex-string])
+
+
+(defrpc deletetransaction
+  "deletetransaction <txid>
+
+  Normally used when a transaction cannot be confirmed due to a double
+  spend. Restart the program after executing this call."
+  [txid])
+
 
 (defrpc dumpprivkey
-  "Reveals the private key corresponding to <bitcoinaddress>"
-  [bitcoinaddress]
-  {:pre [(string? bitcoinaddress)]})
+  "dumpprivkey <namecoinaddress>
+
+  Reveals the private key corresponding to <namecoinaddress>."
+  [namecoinaddress])
+
 
 (defrpc encryptwallet
-  "Encrypts the wallet with <passphrase>."
-  [passphrase]
-  {:pre [(string? passphrase)]})
+  "encryptwallet <passphrase>
+
+  Encrypts the wallet with <passphrase>."
+  [passphrase])
+
 
 (defrpc getaccount
-  "Returns the account associated with the given address."
-  [bitcoinaddress]
-  {:pre [(string? bitcoinaddress)]})
+  "getaccount <namecoinaddress>
+
+  Returns the account associated with the given address."
+  [namecoinaddress])
+
 
 (defrpc getaccountaddress
-  "Returns the current bitcoin address for receiving payments to this account."
-  [account]
-  {:pre [(string? account)]})
+  "getaccountaddress <account>
 
-(defrpc getaddednodeinfo
-  "(version 0.8) Returns information about the given added node, or all added
-   nodes.(note that onetry addnodes are not listed here) If dns is false, only
-   a list of added nodes will be provided, otherwise connected information will
-   also be available."
-  [dns node]
-  {:pre [(string? dns)]})
-
-(defrpc getaddressesbyaccount
-  "Returns the list of addresses for the given account."
-  [account]
-  {:pre [(string? account)]})
-
-(defrpc getbalance
-  "If [account] is not specified, returns the server's total available balance.
-   If [account] is specified, returns the balance in the account."
-  [account minconf])
-
-(defrpc getblock
-  "Returns information about the block with the given hash."
-  [hash]
-  {:pre [(string? hash)]})
-
-(defrpc getblockcount
-  "Returns the number of blocks in the longest block chain."
-  [])
-
-(defrpc getblockhash
-  "Returns hash of block in best-block-chain at <index>; index 0 is the genesis
-   block."
-  [index]
-  {:pre [(integer? index)]})
-
-;; (defrpc getblocknumber
-;;   "Deprecated. Removed in version 0.7. Use getblockcount."
-;;   [])
-
-(defrpc getblocktemplate
-  "Returns data needed to construct a block to work on"
-  [params])
-
-(defrpc getconnectioncount
-  "Returns the number of connections to other nodes."
-  [])
-
-(defrpc getdifficulty
-  "Returns the proof-of-work difficulty as a multiple of the minimum
-   difficulty."
-  [])
-
-(defrpc getgenerate
-  "Returns true or false whether bitcoind is currently generating hashes"
-  [])
-
-(defrpc gethashespersec
-  "Returns a recent hashes per second performance measurement while generating."
-  [])
-
-(defrpc getinfo
-  "Returns an object containing various state info."
-  [])
-
-(defrpc getmemorypool
-  "Replaced in v0.7.0 with getblocktemplate, submitblock, getrawmempool```"
-  [data])
-
-(defrpc getmininginfo
-  "Returns an object containing mining-related information: blocks,
-   currentblocksize, currentblocktx, difficulty, errors, generate, genproclimit,
-   hashespersec, pooledtx, testnet"
-  [])
-
-(defrpc getnewaddress
-  "Returns a new bitcoin address for receiving payments. If [account] is
-   specified (recommended), it is added to the address book so payments received
-   with the address will be credited to [account]."
+  Returns the current Namecoin address for receiving payments to this account."
   [account])
 
-(defrpc getpeerinfo
-  "(version 0.7) Returns data about each connected node."
-  [])
 
-(defrpc getrawmempool
-  "(version 0.7) Returns all transaction ids in memory pool"
-  [])
+(defrpc getaddressesbyaccount
+  "getaddressesbyaccount <account>
 
-(defrpc getrawtransaction
-  "(version 0.7) Returns raw transaction representation for given
-  transaction id."
-  [txid verbose]
-  {:pre [(string? txid)]})
+  Returns the list of addresses for the given account."
+  [account])
 
-(defrpc getreceivedbyaccount
-  "Returns the total amount received by addresses with [account] in transactions
-   with at least [minconf] confirmations. If [account] not provided return will
-   include all transactions to all accounts. (version 0.3.24)"
-  [account minconf])
 
-(defrpc getreceivedbyaddress
-  "Returns the total amount received by <bitcoinaddress> in transactions with at
-   least [minconf] confirmations. While some might consider this obvious, value
-   reported by this only considers *receiving* transactions. It does not check
-   payments that have been made *from* this address. In other words, this is not
-   \"getaddressbalance\". Works only for addresses in the local wallet, external
-   addresses will always show 0."
-  [bitcoinaddress minconf]
-  {:pre [(string? bitcoinaddress)]})
+(defrpc getauxblock
+  "getauxblock [<hash> <auxpow>]
 
-(defrpc gettransaction
-  "Returns an object about the given transaction containing:
-   \"amount\": total amount of the transaction,
-   \"confirmations\": number of confirmations of the transaction,
-   \"txid\": the transaction ID,
-   \"time\": time associated with the transaction.,
-   \"details\" - An array of objects containing: \"account\", \"address\",
-        \"category\", \"amount\", \"fee\""
-  [txid]
-  {:pre [(string? txid)]})
-
-(defrpc gettxout
-  "Returns details about an unspent transaction output (UTXO)"
-  [txid n includemempool]
-  {:pre [(string? txid)
-         (integer? n)]})
-
-(defrpc gettxoutsetinfo
-  "Returns statistics about the unspent transaction output (UTXO) set"
-  [])
-
-(defrpc getwork
-  "If [data] is not specified, returns formatted hash data to work on:
-  \"midstate\": precomputed hash state after hashing the first half of
-  the data, \"data\": block data, \"hash1\": formatted hash buffer for
-  second hash, \"target\": little endian hash target, If [data] is
-  specified, tries to solve the block and returns true if it was
+  create a new blockIf <hash>, <auxpow> is not specified, returns a
+  new block hash. If <hash>, <auxpow> is specified, tries to solve the
+  block based on the aux proof of work and returns true if it was
   successful."
+  [hash auxpow])
+
+
+(defrpc getbalance
+  "getbalance [account] [minconf=1]
+
+  If [account] is not specified, returns the server's total available
+  balance.  If [account] is specified, returns the balance in the
+  account."
+  [account? minconf?])
+
+
+(defrpc getblock
+  "getblock hash
+
+  Dumps the block with specified hash."
+  [hash])
+
+
+(defrpc getblockbycount
+  "getblockbycount height
+
+  Dumps the block existing at specified height."
+  [height])
+
+
+(defrpc getblockcount
+  "getblockcount
+  Returns the number of blocks in the longest block chain."
+  [])
+
+
+(defrpc getblockhash
+  "getblockhash <index>
+
+  Returns hash of block in best-block-chain at <index>."
+  [index])
+
+
+(defrpc getblocknumber
+  "getblocknumber
+
+  Returns the block number of the latest block in the longest block chain."
+  [])
+
+
+(defrpc getconnectioncount
+  "getconnectioncount
+
+  Returns the number of connections to other nodes."
+  [])
+
+
+(defrpc getdifficulty
+  "getdifficulty
+
+  Returns the proof-of-work difficulty as a multiple of the minimum difficulty."
+  [])
+
+
+(defrpc getgenerate
+  "getgenerate
+
+  Returns true or false."
+  [])
+
+
+(defrpc gethashespersec
+  "gethashespersec
+
+  Returns a recent hashes per second performance measurement while generating."
+  [])
+
+
+(defrpc getinfo
+  "getinfo
+
+  Returns an object containing various state info."
+  [])
+
+
+(defrpc getmemorypool
+  "getmemorypool [data]
+
+  If [data] is not specified, returns data needed to construct a block to work on:
+    \"version\" : block version
+    \"previousblockhash\" : hash of current highest block
+    \"transactions\" : contents of non-coinbase transactions that should be included in the next block
+    \"coinbasevalue\" : maximum allowable input to coinbase transaction, including the generation award and transaction fees
+    \"time\" : timestamp appropriate for next block
+    \"bits\" : compressed target of next block
+  If [data] is specified, tries to solve the block and returns true if it was successful."
   [data])
 
+
+(defrpc getnewaddress
+  "getnewaddress [account]
+
+  Returns a new Namecoin address for receiving payments.  If [account]
+  is specified (recommended), it is added to the address book so
+  payments received with the address will be credited to [account]."
+  [account])
+
+
+(defrpc getrawmempool
+  "getrawmempool
+
+  Returns all transaction ids in memory pool."
+  [])
+
+
+(defrpc getrawtransaction
+  "getrawtransaction <txid> [verbose=0]
+
+  If verbose=0, returns a string that is serialized, hex-encoded data
+  for <txid>.  If verbose is non-zero, returns an Object with
+  information about <txid>."
+  [txid verbose?])
+
+
+(defrpc getreceivedbyaccount
+  "getreceivedbyaccount <account> [minconf=1]
+
+  Returns the total amount received by addresses with <account> in
+  transactions with at least [minconf] confirmations."
+  [account minconf?])
+
+
+(defrpc getreceivedbyaddress
+  "getreceivedbyaddress <namecoinaddress> [minconf=1]
+
+  Returns the total amount received by <namecoinaddress> in
+  transactions with at least [minconf] confirmations."
+  [namecoinaddress minconf?])
+
+
+(defrpc gettransaction
+  "gettransaction <txid>
+
+  Get detailed information about <txid>"
+  [txid])
+
+
+(defrpc getwork
+  "getwork [data]
+
+  If [data] is not specified, returns formatted hash data to work on:
+    \"midstate\" : precomputed hash state after hashing the first half of the data
+    \"data\" : block data
+    \"hash1\" : formatted hash buffer for second hash
+    \"target\" : little endian hash target
+  If [data] is specified, tries to solve the block and returns true if it was successful."
+  [data])
+
+
+(defrpc getworkaux
+  "getworkaux <aux>
+   getworkaux '' <data>
+   getworkaux 'submit' <data>
+   getworkaux '' <data> <chain-index> <branch>*
+
+  get work with auxiliary data in coinbase, for multichain mining
+  <aux> is the merkle root of the auxiliary chain block hashes, concatenated with the aux chain merkle tree size and a nonce
+  <chain-index> is the aux chain index in the aux chain merkle tree
+  <branch> is the optional merkle branch of the aux chain
+  If <data> is not specified, returns formatted hash data to work on:
+    \"midstate\" : precomputed hash state after hashing the first half of the data
+    \"data\" : block data
+    \"hash1\" : formatted hash buffer for second hash
+    \"target\" : little endian hash target
+  If <data> is specified and 'submit', tries to solve the block for this (parent) chain and returns true if it was successful.If <data> is specified and empty first argument, returns the aux merkle root, with size and nonce.If <data> and <chain-index> are specified, creates an auxiliary proof of work for the chain specified and returns:
+    \"aux\" : merkle root of auxiliary chain block hashes
+    \"auxpow\" : aux proof of work to submit to aux chain."
+  [op? data? chain-index? branch?])
+
+
 (defrpc help
-  "List commands, or get help for a command."
-  [command])
+  "help [command]
+
+  List commands, or get help for a command."
+  [command?])
+
+
+(defrpc importaddress
+  "importaddress <namecoinaddress> [label] [rescan=true]
+
+  Adds an address that can be watched as if it were in your wallet but cannot be used to spend."
+  [namecoinaddress label rescan?])
+
 
 (defrpc importprivkey
-  "Adds a private key (as returned by dumpprivkey) to your wallet. This
-   may take a while, as a rescan is done, looking for existing
-  transactions. Optional [rescan] parameter added in 0.8.0."
-  [bitcoinprivkey label rescan]
-  {:pre [(string? bitcoinprivkey)]})
+  "importprivkey <namecoinprivkey> [label] [rescan=true]
 
-(defrpc keypoolrefill
-  "Fills the keypool, requires wallet passphrase to be set."
-  [])
+  Adds a private key (as returned by dumpprivkey) to your wallet."
+  [namecoinprivkey label? rescan?])
+
 
 (defrpc listaccounts
-  "Returns Object that has account names as keys, account balances as
-   values."
-  [minconf])
+  "listaccounts [minconf=1]
+
+  Returns Object that has account names as keys, account balances as values."
+  [minconf?])
+
 
 (defrpc listaddressgroupings
-  "(version 0.7) Returns all addresses in the wallet and info used for
-   coincontrol."
+  "listaddressgroupings
+
+  Lists groups of addresses which have had their common ownership made
+  public by common use as inputs or as the resulting change in past
+  transactions"
   [])
+
 
 (defrpc listreceivedbyaccount
-  "Returns an array of objects containing:, \"account\": the account
-   of the receiving addresses, \"amount\": total amount received by
-   addresses with this account, \"confirmations\": number of
-   confirmations of the most recent transaction included"
-  [minconf includeempty])
+  "listreceivedbyaccount [minconf=1] [includeempty=false]
+
+
+  [minconf] is the minimum number of confirmations before payments are
+  included.  [includeempty] whether to include accounts that haven't
+  received any payments.  Returns an array of objects containing:
+  \"account\" : the account of the receiving addresses \"amount\" :
+  total amount received by addresses with this account
+  \"confirmations\" : number of confirmations of the most recent
+  transaction included."
+  [minconf? includeempty?])
+
 
 (defrpc listreceivedbyaddress
-  "Returns an array of objects containing:, \"address\": receiving
-  address, \"account\": the account of the receiving address,
-  \"amount\": total amount received by the address, \"confirmations\":
-  number of confirmations of the most recent transaction included, To
-  get a list of accounts on the system, execute bitcoind
-  listreceivedbyaddress 0 true"
-  [minconf includeempty]
-  )
-(defrpc listsinceblock
-  "Get all transactions in blocks since block [blockhash], or all
-   transactions if omitted."
-  [blockhash target-confirmations])
+  "listreceivedbyaddress [minconf=1] [includeempty=false]
+
+  [minconf] is the minimum number of confirmations before payments are included.
+  [includeempty] whether to include addresses that haven't received any payments.
+  Returns an array of objects containing:
+    \"address\" : receiving address
+    \"account\" : the account of the receiving address
+    \"amount\" : total amount received by the address
+    \"confirmations\" : number of confirmations of the most recent transaction included."
+  [minconf? includeempty?])
+
 
 (defrpc listtransactions
-  "Returns up to [count] most recent transactions skipping the first
-  [from] transactions for account [account]. If [account] not provided
-  will return recent transaction from all accounts."
-  [account count from])
+  "listtransactions [account] [count=10] [from=0]
+
+  Returns up to [count] most recent transactions skipping the first
+  [from] transactions for account [account]."
+  [account? count? from?])
+
 
 (defrpc listunspent
-  "(version 0.7) Returns array of unspent transaction inputs in the wallet."
-  [minconf maxconf])
-(defrpc listlockunspent
-  "(version 0.8) Returns list of temporarily unspendable outputs"
-  [])
+  "listunspent [minconf=1] [maxconf=9999999]  [\"address\",...]
 
-(defrpc lockunspent
-  "(version 0.8) Updates list of temporarily unspendable outputs"
-  [unlock? array-of-objects]
-  {:pre [(not-nil? unlock?)]})
+  Returns array of unspent transaction outputs with between minconf
+  and maxconf (inclusive) confirmations.  Optionally filtered to only
+  include txouts paid to specified addresses.  Results are an array of
+  Objects, each of which has: {txid, vout, scriptPubKey, amount,
+  confirmations}"
+  [minconf? maxconf? addr-array?])
+
 
 (defrpc move
-  "Move from one account in your wallet to another"
-  [fromaccount toaccount amount minconf comment]
-  {:pre [(string? fromaccount)
-         (string? toaccount)
-         (number? amount)]})
+  "move <fromaccount> <toaccount> <amount> [minconf=1] [comment]
+
+  Move from one account in your wallet to another."
+  [fromaccount toaccount amount minconf? comment?])
+
 
 (defrpc sendfrom
-  "<amount> is a real and is rounded to 8 decimal places. Will send
-  the given amount to the given address, ensuring the account has a
-  valid balance using [minconf] confirmations. Returns the transaction
-  ID if successful (not in JSON object)."
-  [fromaccount tobitcoinaddress amount minconf comment comment-to]
-  {:pre [(string? fromaccount)
-         (string? tobitcoinaddress)
-         (number? amount)]})
+  "sendfrom <fromaccount> <tonamecoinaddress> <amount> [minconf=1] [comment] [comment-to]
+
+  <amount> is a real and is rounded to the nearest 0.01."
+  [fromaccount tonamecoinaddress amount minconf? comment? comment-to?])
+
 
 (defrpc sendmany
-  "amounts are double-precision floating point numbers.
-  example usage:
-  (sendmany :fromaccount \"my-account\"
-            :address-amount-maps [{\"payee1\" \"amount1\"}]
-            :minconf 6 :comment \"Keep the change\")"
-  [fromaccount address-amount-maps minconf comment]
-  {:pre [(string? fromaccount)
-         (vector? address-amount-maps)]})
+  "sendmany <fromaccount> {address:amount,...} [minconf=1] [comment]
+
+  amounts are double-precision floating point numbers rounded to 0.01."
+  [fromaccount addr-ammount-map minconf? comment?])
+
 
 (defrpc sendrawtransaction
-  "(version 0.7) Submits raw transaction (serialized, hex-encoded) to
-  local node and network."
-  [hexstring]
-  {:pre [(string? hexstring)]})
+  "sendrawtransaction <hex string>
+
+  Submits raw transaction (serialized, hex-encoded) to local node and network."
+  [hex-string])
+
 
 (defrpc sendtoaddress
-  "<amount> is a real and is rounded to 8 decimal places. Returns the
-  transaction ID <txid> if successful."
-  [bitcoinaddress amount comment comment-to]
-  {:pre [(string? bitcoinaddress)
-         (number? amount)]})
+  "sendtoaddress <namecoinaddress> <amount> [comment] [comment-to]
+
+  <amount> is a real and is rounded to the nearest 0.01."
+  [namecoinaddress amount comment? comment-to?])
+
+
+(defrpc sendtoname
+  "sendtoname <namecoinname> <amount> [comment] [comment-to]
+
+  <amount> is a real and is rounded to the nearest 0.01."
+  [namecoinname amount comment? comment-to?])
+
 
 (defrpc setaccount
-  "Sets the account associated with the given address. Assigning
-  address that is already assigned to the same account will create a new
-  address associated with that account."
-  [bitcoinaddress account]
-  {:pre [(string? bitcoinaddress)
-         (string? account)]})
+  "setaccount <namecoinaddress> <account>
+
+  Sets the account associated with the given address."
+  [namecoinaddress account])
+
 
 (defrpc setgenerate
-  "<generate> is true or false to turn generation on or
-  off. Generation is limited to [genproclimit] processors, -1 is
-  unlimited."
-  [generate genproclimit]
-  {:pre [(instance? Boolean generate)]})
+  "setgenerate <generate> [genproclimit]
+
+  <generate> is true or false to turn generation on or off.
+  Generation is limited to [genproclimit] processors, -1 is unlimited."
+  [generate genproclimit?])
+
+
+(defrpc setmininput
+  "setmininput <amount>
+
+  <amount> is a real and is rounded to the nearest 0.00000001"
+  [amount])
+
 
 (defrpc settxfee
-  "<amount> is a real and is rounded to the nearest 0.00000001"
-  [amount]
-  {:pre [(number? amount)]})
+  "settxfee <amount>
+
+  <amount> is a real and is rounded to the nearest 0.00000001"
+  [amount])
+
 
 (defrpc signmessage
-  "Sign a message with the private key of an address."
-  [bitcoinaddress message]
-  {:pre [(string? bitcoinaddress)
-         (string? message)]})
+  "signmessage <namecoinaddress> <message>
+
+  Sign a message with the private key of an address."
+  [namecoinaddress message])
 
 
 (defrpc signrawtransaction
-  "(version 0.7) Adds signatures to a raw transaction and returns the
-  resulting raw transaction.
-  txinfo is of the form [{:txid \"txid\", :vout n,
-                          :scriptPubKey \"hex\"}].
-  Exact case is important, pay attention to scriptPubKey."
-  [hexstring txinfo privatekeys]
-  {:pre [(string? hexstring)
-         (vector? txinfo)]})
+  "signrawtransaction <hex string> [{\"txid\":txid,\"vout\":n,\"scriptPubKey\":hex},...] [<privatekey1>,...] [sighashtype=\"ALL\"]
+
+
+  Sign inputs for raw transaction (serialized, hex-encoded).
+  Second optional argument (may be null) is an array of previous transaction outputs that
+  this transaction depends on but may not yet be in the block chain.
+  Third optional argument (may be null) is an array of base58-encoded private
+  keys that, if given, will be the only keys used to sign the transaction.
+  Fourth optional argument is a string that is one of six values; ALL, NONE, SINGLE or
+  ALL|ANYONECANPAY, NONE|ANYONECANPAY, SINGLE|ANYONECANPAY.
+  Returns json object with keys:
+    hex : raw transaction with signature(s) (hex-encoded string)
+    complete : 1 if transaction has a complete set of signature (0 if not)"
+  [hex-string prior-tx-outputs? private-keys? sighashtype?])
+
 
 (defrpc stop
-  "Stop bitcoin server."
+  "stop
+
+  Stop namecoin server."
   [])
 
-(defrpc submitblock
-  "Attempts to submit new block to network."
-  [hex data optional-params-obj])
 
 (defrpc validateaddress
-  "Return information about <bitcoinaddress>."
-  [bitcoinaddress]
-  {:pre [(string? bitcoinaddress)]})
+  "validateaddress <namecoinaddress>
+
+  Return information about <namecoinaddress>."
+  [namecoinaddress])
+
 
 (defrpc verifymessage
-  "Verify a signed message."
-  [bitcoinaddress signature message]
-  {:pre [(string? bitcoinaddress)
-         (string? signature)
-         (string? message)]})
+  "verifymessage <namecoinaddress> <signature> <message>
 
-(defrpc walletlock
-  "Removes the wallet encryption key from memory, locking the
-  wallet. After calling this method, you will need to call
-  walletpassphrase again before being able to call any methods which
-  require the wallet to be unlocked."
+  Verify a signed message."
+  [namecoinaddress signature message])
+
+
+(defrpc name_clean 
+  "name_clean
+
+  Clean unsatisfiable transactions from the wallet - including
+  name_update on an already taken name"
   [])
 
-(defrpc walletpassphrase
-  "Stores the wallet decryption key in memory for <timeout> seconds."
-  [passphrase timeout]
-  {:pre [(string? passphrase)
-         (number? timeout)]})
 
-(defrpc walletpassphrasechange
-  "Changes the wallet passphrase from <oldpassphrase> to <newpassphrase>."
-  [oldpassphrase newpassphrase]
-  {:pre [(string? oldpassphrase)
-         (string? newpassphrase)]})
+(defrpc name_debug 
+  "name_debug
+
+  Dump pending transactions id in the debug file."
+  [])
+
+
+(defrpc name_debug1 
+  "name_debug1 <name>
+
+  Dump name blocks number and transactions id in the debug file."
+  [name])
+
+
+(defrpc name_filter 
+  "name_filter [regexp] [maxage=36000] [from=0] [nb=0] [stat]
+
+  scan and filter names."
+  [regexp maxage? from? nb? stat?])
+
+
+(defrpc name_firstupdate 
+  "name_firstupdate <name> <rand> [<tx>] <value>
+
+  Perform a first update after a name_new reservation.\nNote that the
+  first update will go into a block 12 blocks after the name_new, at
+  the soonest."
+  [name rand tx? value?])
+
+
+(defrpc name_history 
+  "name_history <name>\nList all name values of a name.\n"
+  [name])
+
+
+(defrpc name_list 
+  "name_list [<name>]\nlist my own names"
+  [name?])
+
+
+(defrpc name_new 
+  "name_new <name>"
+  [name])
+
+
+(defrpc name_scan 
+  "name_scan [<start-name>] [<max-returned>]
+
+  scan all names, starting at start-name and returning a maximum
+  number of entries (default 500)."
+  [start-name? max-returned?])
+
+
+(defrpc name_show 
+  "name_show <name>
+
+  Show values of a name."
+  [name])
+
+
+(defrpc name_update 
+  "name_update <name> <value> [<toaddress>]
+
+  Update and possibly transfer a name."
+  [name value toaddress?])
