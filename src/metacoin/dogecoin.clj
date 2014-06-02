@@ -23,11 +23,14 @@
   If 'account' is specified, assign address to that account.
 
   Arguments:
+
     1. nrequired (numeric, required) The number of required signatures
        out of the n keys or addresses.
+
     2. \"keysobject\" (string, required) A JSON array of Dogecoin
        addresses or hex-encoded public keys
        [ \"address\" (string) Dogecoin address or hex-encoded public key .., ]
+
     3. \"account\" (string, optional) An account to assign the addresses to.
 
   Result:
@@ -45,7 +48,9 @@
   Or try a connection to a node once.
 
   Arguments:
+
     1. \"node\"     (string, required) The node (see getpeerinfo for nodes)
+
     2. \"command\" (string, required) 'add' to add a node to the list,
        'remove' to remove a node from the list, 'onetry' to try a
         connection to the node once."
@@ -61,9 +66,8 @@
   a path with filename.
 
   Arguments:
-    1. \"destination\"   (string) The destination directory or file."
-  [destination]
-  {:pre [(string? destination)]})
+    1. \"destination\" (string) The destination directory or file."
+  [destination] {:pre [(string? destination)]})
 
 
 (defrpc createmultisig
@@ -73,8 +77,13 @@
   It returns a json object with the address and redeemScript.
 
   Arguments:
-    1. nrequired  (numeric, required) The number of required signatures out of the n keys or addresses.
-    2. \"keys\"   (string, required) A json array of keys which are dogecoin addresses or hex-encoded public keys
+
+    1. nrequired (numeric, required) The number of required signatures
+       out of the n keys or addresses.
+
+    2. \"keys\" (string, required) A json array of keys which are
+       dogecoin addresses or hex-encoded public keys
+
      [
        \"key\"    (string) dogecoin address or hex-encoded public key
        ,...
@@ -87,7 +96,8 @@
     }"
   [nrequired keys]
   {:pre [(integer? nrequired)
-         (vector? keys)]})
+         (vector? keys)
+         (every? string? keys)]})
 
 
 (defrpc createrawtransaction
@@ -100,19 +110,20 @@
 
   Arguments:
     1. \"transactions\"    (string, required) A json array of json objects
-     [
-       {
-         \"txid\":\"id\",  (string, required) The transaction id
-         \"vout\":n        (numeric, required) The output number
-       }
-       ,...
-     ]
-    2. \"addresses\"       (string, required) a json object with addresses as keys and amounts as values
-     {
-       \"address\": x.xxx  (numeric, required) The key is the Dogecoin address, the value is the doge amount
-       ,...
-     }
+       [
+         {
+           \"txid\":\"id\",  (string, required) The transaction id
+           \"vout\":n        (numeric, required) The output number
+         }
+         ,...
+       ]
 
+    2. \"addresses\"       (string, required) a json object with addresses as keys and amounts as values
+       {
+         \"address\": x.xxx  (numeric, required) The key is the Dogecoin address, the value is the doge amount
+         ,...
+       }
+  
   Result:
     \"transaction\"        (string) hex string of the transaction."
 
@@ -236,8 +247,7 @@
 
   Arguments:
     1. \"passphrase\" (string) The pass phrase to encrypt the wallet
-                               with. It must be at least 1 character,
-                               but should be long."
+       with. It must be at least 1 character, but should be long."
   [passphrase]
   {:pre [(string? passphrase)]})
 
@@ -251,7 +261,7 @@
     1. \"dogecoinaddress\"  (string, required) The Dogecoin address for account lookup.
 
   Result:
-    \"accountname\"        (string) the account address."
+    \"accountname\" (string) the account address."
   [dogecoinaddress]
   {:pre [(string? dogecoinaddress)]})
 
@@ -323,6 +333,7 @@
     1. dns (boolean, required) If false, only a list of added nodes
        will be provided, otherwise connected information will also be
        available.
+
     2. \"node\" (string, optional) If provided, return information
        about this specific node, otherwise all nodes are returned.
 
@@ -381,6 +392,7 @@
 
   Arguments:
     1. \"hash\" (string, required) The block hash
+
     2. verbose (boolean, optional, default=true) true for a json
        object, false for the hex encoded data
 
@@ -416,7 +428,7 @@
   Returns the number of blocks in the longest block chain.
 
   Result:
-  n    (numeric) The current block count."
+    n (numeric) The current block count."
   [])
 
 
@@ -615,7 +627,7 @@
 
 (defrpc getmininginfo
   "getmininginfo
-  
+
   Returns a json object containing mining-related information.
   Result:
   {
@@ -659,7 +671,7 @@
   Arguments:
     1. blocks     (numeric, optional, default=120) The number of blocks, or -1 for blocks since last difficulty change.
     2. height     (numeric, optional, default=-1) To estimate at the time of the given height.
-    
+
   Result:
     x (numeric) Hashes per second estimated."
   [blocks height])
@@ -671,14 +683,14 @@
   Returns a new Dogecoin address for receiving payments.
   If 'account' is specified (recommended), it is added to the address book
   so payments received with the address will be credited to 'account'.
-  
+
   Arguments:
     1. \"account\" (string, optional) The account name for the address
        to be linked to. if not provided, the default account \"\" is
        used. It can also be set to the empty string \"\" to represent
        the default account. The account does not need to exist, it
        will be created if there is no account by the given name.
-  
+
   Result:
     \"dogecoinaddress\" (string) The new Dogecoin address."
   [account?])
@@ -720,7 +732,7 @@
 
   Returns a new Dogecoin address, for receiving change.
   This is for use with raw transactions, NOT normal use.
-  
+
   Result:
     \"address\"    (string) The address."
   [])
@@ -735,13 +747,13 @@
   Arguments:
     1. verbose (boolean, optional, default=false) true for a json
        object, false for array of transaction ids
-  
+
   Result: (for verbose = false):
     [                     (json array of string)
       \"transactionid\"     (string) The transaction id
       ,...
     ]
-  
+
   Result: (for verbose = true):
     {                           (json object)
       \"transactionid\" : {       (json object)
@@ -761,19 +773,19 @@
 
 (defrpc getrawtransaction
   "getrawtransaction \"txid\" ( verbose )
-  
+
   Return the raw transaction data.
-  
+
   If verbose=0, returns a string that is serialized, hex-encoded data for 'txid'.
   If verbose is non-zero, returns an Object with information about 'txid'.
-  
+
   Arguments:
     1. \"txid\"      (string, required) The transaction id
     2. verbose       (numeric, optional, default=0) If 0, return a string, other return a json object
-    
+
   Result (if verbose is not set or set to 0):
     \"data\"      (string) The serialized, hex-encoded data for 'txid'
-  
+
   Result (if verbose > 0):
     {
       \"hex\" : \"data\",       (string) The serialized, hex-encoded data for 'txid'
@@ -822,11 +834,15 @@
   "getreceivedbyaccount \"account\" ( minconf )
 
   Returns the total amount received by addresses with <account> in transactions with at least [minconf] confirmations.
-  
+
   Arguments:
-    1. \"account\" (string, required) The selected account, may be the default account using \"\".
-    2. minconf (numeric, optional, default=1) Only include transactions confirmed at least this many times.
-  
+
+    1. \"account\" (string, required) The selected account, may be the
+       default account using \"\".
+
+    2. minconf (numeric, optional, default=1) Only include
+       transactions confirmed at least this many times.
+
   Result:
     amount (numeric) The total amount in doge received for this account."
   [account minconf?])
@@ -839,8 +855,12 @@
   transactions with at least minconf confirmations.
 
   Arguments:
-    1. \"dogecoinaddress\"  (string, required) The Dogecoin address for transactions.
-    2. minconf             (numeric, optional, default=1) Only include transactions confirmed at least this many times.
+
+    1. \"dogecoinaddress\" (string, required) The Dogecoin address for
+       transactions.
+
+    2. minconf (numeric, optional, default=1) Only include
+       transactions confirmed at least this many times.
 
   Result:
     amount   (numeric) The total amount in doge received at this address."
@@ -883,9 +903,9 @@
 
 (defrpc gettxout
   "gettxout \"txid\" n ( includemempool )
-  
+
   Returns details about an unspent transaction output.
-  
+
   Arguments:
     1. \"txid\"        (string, required) The transaction id
     2. n               (numeric, required) vout value
@@ -956,11 +976,16 @@
   "importprivkey \"dogecoinprivkey\" ( \"label\" rescan )
 
   Adds a private key (as returned by dumpprivkey) to your wallet.
-  
+
   Arguments:
-    1. \"dogecoinprivkey\"  (string, required) The private key (see dumpprivkey)
-    2. \"label\"            (string, optional) an optional label
-    3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions."
+
+    1. \"dogecoinprivkey\" (string, required) The private key (see
+       dumpprivkey)
+ 
+    2. \"label\" (string, optional) an optional label
+
+    3. rescan (boolean, optional, default=true) Rescan the wallet for
+       transactions."
   [dogecoinprivkey label? rescan?]
   {:pre [(string? dogecoinprivkey)
          (or (= nil label?)
@@ -969,10 +994,11 @@
 
 (defrpc importwallet
   "importwallet \"filename\"
-  
+
   Imports keys from a wallet dump file (see dumpwallet).
-  
+
   Arguments:
+
     1. \"filename\"    (string, required) The wallet file."
   [filename]
   {:pre [(string? filename)]})
@@ -982,20 +1008,21 @@
   "keypoolrefill ( newsize )
 
   Fills the keypool.
-  
+
   Arguments
-  1. newsize     (numeric, optional, default=100) The new keypool size."
+
+    1. newsize (numeric, optional, default=100) The new keypool size."
   [])
 
 
 (defrpc listaccounts
   "listaccounts ( minconf )
-  
+
   Returns Object that has account names as keys, account balances as values.
-  
+
   Arguments:
     1. minconf (numeric, optional, default=1) Only onclude transactions with at least this many confirmations
-  
+
   Result:
     {                      (json object where keys are account names, and values are numeric balances
       \"account\": x.xxx,  (numeric) The property name is the account name, and the value is the total balance for the account.
@@ -1010,7 +1037,7 @@
   Lists groups of addresses which have had their common ownership
   made public by common use as inputs or as the resulting change
   in past transactions
-  
+
   Result:
     [
       [
@@ -1028,10 +1055,10 @@
 
 (defrpc listlockunspent
   "listlockunspent
-  
+
   Returns list of temporarily unspendable outputs.
   See the lockunspent call to lock and unlock transactions for spending.
-  
+
   Result:
     [
       {
@@ -1047,11 +1074,15 @@
   "listreceivedbyaccount ( minconf includeempty )
 
   List balances by account.
-  
+
   Arguments:
-    1. minconf      (numeric, optional, default=1) The minimum number of confirmations before payments are included.
-    2. includeempty (boolean, optional, default=false) Whether to include accounts that haven't received any payments.
-    
+
+    1. minconf (numeric, optional, default=1) The minimum number of
+       confirmations before payments are included.
+
+    2. includeempty (boolean, optional, default=false) Whether to
+       include accounts that haven't received any payments.
+
   Result:
     [
       {
@@ -1061,18 +1092,22 @@
       }
       ,...
     ]"
-  [minconf includeempty])
+  [minconf? includeempty?])
 
 
 (defrpc listreceivedbyaddress
   "listreceivedbyaddress ( minconf includeempty )
 
   List balances by receiving address.
-  
+
   Arguments:
-    1. minconf       (numeric, optional, default=1) The minimum number of confirmations before payments are included.
-    2. includeempty  (numeric, optional, dafault=false) Whether to include addresses that haven't received any payments.
-  
+
+    1. minconf (numeric, optional, default=1) The minimum number of
+       confirmations before payments are included.
+
+    2. includeempty (numeric, optional, dafault=false) Whether to
+       include addresses that haven't received any payments.
+
   Result:
     [
       {
@@ -1083,18 +1118,18 @@
       }
       ,...
     ]"
-  [minconf includeempty?])
+  [minconf? includeempty?])
 
 
 (defrpc listsinceblock
   "listsinceblock ( \"blockhash\" target-confirmations )
-  
+
   Get all transactions in blocks since block [blockhash], or all transactions if omitted
-  
+
   Arguments:
     1. \"blockhash\"   (string, optional) The block hash to list transactions since
     2. target-confirmations:    (numeric, optional) The confirmations required, must be 1 or more
-    
+
   Result:
     {
       \"transactions\": [
@@ -1123,13 +1158,13 @@
   "listtransactions ( \"account\" count from )
 
   Returns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.
-  
+
   Arguments:
     1. \"account\"    (string, optional) The account name. If not included, it will list all transactions for all accounts.
                                          If \"\" is set, it will list transactions for the default account.
     2. count          (numeric, optional, default=10) The number of transactions to return
     3. from           (numeric, optional, default=0) The number of transactions to skip
-    
+
   Result:
     [
       {
@@ -1174,7 +1209,7 @@
   Optionally filter to only include txouts paid to specified addresses.
   Results are an array of Objects, each of which has:
   {txid, vout, scriptPubKey, amount, confirmations}
-  
+
   Arguments:
     1. minconf          (numeric, optional, default=1) The minimum confirmationsi to filter
     2. maxconf          (numeric, optional, default=9999999) The maximum confirmations to filter
@@ -1183,7 +1218,7 @@
           \"address\"   (string) Dogecoin address
           ,...
         ]
-    
+
   Result
    [                   (array of json object)
      {
@@ -1202,14 +1237,14 @@
 
 (defrpc lockunspent
   "lockunspent unlock [{\"txid\":\"txid\",\"vout\":n},...]
-  
+
   Updates list of temporarily unspendable outputs.
   Temporarily lock (lock=true) or unlock (lock=false) specified transaction outputs.
   A locked transaction output will not be chosen by automatic coin selection, when spending dogecoins.
   Locks are stored in memory only. Nodes start with zero locked outputs, and the locked output list
   is always cleared (by virtue of process exit) when a node stops or fails.
   Also see the listunspent call
-  
+
   Arguments:
     1. unlock            (boolean, required) Whether to unlock (true) or lock (false) the specified transactions
     2. \"transactions\"  (string, required) A json array of objects. Each object the txid (string) vout (numeric)
@@ -1220,7 +1255,7 @@
            }
            ,...
          ]
-    
+
   Result:
     true|false    (boolean) Whether the command was successful or not."
   [unlock array-of-objects]
@@ -1229,15 +1264,15 @@
 
 (defrpc move
   "move \"fromaccount\" \"toaccount\" amount ( minconf \"comment\" )
-  
+
   Move a specified amount from one account in your wallet to another.
-  
+
   Arguments:
     1. \"fromaccount\"   (string, required) The name of the account to move funds from. May be the default account using \"\".
     2. \"toaccount\"     (string, required) The name of the account to move funds to. May be the default account using \"\".
     3. minconf           (numeric, optional, default=1) Only use funds with at least this many confirmations.
     4. \"comment\"       (string, optional) An optional comment, stored in the wallet only.
-    
+
   Result:
     true|false           (boolean) true if successfull."
   [fromaccount toaccount amount minconf? comment?]
@@ -1248,7 +1283,7 @@
 
 (defrpc ping
   "ping
-  
+
   Requests that a ping be sent to all other nodes, to measure ping
   time.  Results provided in getpeerinfo, pingtime and pingwait fields
   are decimal seconds.  Ping command is handled in queue with all
@@ -1262,20 +1297,32 @@
 
   Sent an amount from an account to a Dogecoin address.
   The amount is a real and is rounded to the nearest 0.00000001.
-  
+
   Arguments:
-    1. \"fromaccount\"       (string, required) The name of the account to send funds from. May be the default account using \"\".
-    2. \"todogecoinaddress\" (string, required) The Dogecoin address to send funds to.
-    3. amount                (numeric, required) The amount in doge. (transaction fee is added on top).
-    4. minconf               (numeric, optional, default=1) Only use funds with at least this many confirmations.
-    5. \"comment\"           (string, optional) A comment used to store what the transaction is for.
-                                         This is not part of the transaction, just kept in your wallet.
-    6. \"comment-to\"        (string, optional) An optional comment to store the name of the person or organization
-                                         to which you're sending the transaction. This is not part of the transaction,
-                                         it is just kept in your wallet.
-    
+
+    1. \"fromaccount\" (string, required) The name of the account to
+       send funds from. May be the default account using \"\".
+
+    2. \"todogecoinaddress\" (string, required) The Dogecoin address
+        to send funds to.
+
+    3. amount (numeric, required) The amount in doge. (transaction fee
+       is added on top).
+
+    4. minconf (numeric, optional, default=1) Only use funds with at
+       least this many confirmations.
+
+    5. \"comment\" (string, optional) A comment used to store what the
+       transaction is for.  This is not part of the transaction, just
+       kept in your wallet.
+
+    6. \"comment-to\" (string, optional) An optional comment to store
+       the name of the person or organization to which you're sending
+       the transaction. This is not part of the transaction, it is
+       just kept in your wallet.
+
   Result:
-    \"transactionid\"        (string) The transaction id. (view at https://blockchain.info/tx/[transactionid])."
+    \"transactionid\" (string) The transaction id."
   [fromaccount todogecoinaddress amount minconf comment comment-to]
   {:pre [(string? fromaccount)
          (string? todogecoinaddress)
@@ -1284,24 +1331,31 @@
 
 (defrpc sendmany
   "sendmany \"fromaccount\" {\"address\":amount,...} ( minconf \"comment\" )
-  
-  Send multiple times. Amounts are double-precision floating point numbers.
-  
+
+  Send multiple times. Amounts are double-precision floating point
+  numbers.
+
   Arguments:
-    1. \"fromaccount\"         (string, required) The account to send the funds from, can be \"\" for the default account
-    2. \"amounts\"             (string, required) A json object with addresses and amounts
+
+    1. \"fromaccount\" (string, required) The account to send the
+       funds from, can be \"\" for the default account
+
+    2. \"amounts\" (string, required) A json object with addresses and amounts
         {
           \"address\":amount   (numeric) The Dogecoin address is the key, the numeric amount in doge is the value
           ,...
         }
-    3. minconf                 (numeric, optional, default=1) Only use the balance confirmed at least this many times.
-    4. \"comment\"             (string, optional) A comment
-    
+
+    3. minconf (numeric, optional, default=1) Only use the balance
+       confirmed at least this many times.
+
+    4. \"comment\" (string, optional) A comment
+
   Result:
-    \"transactionid\"          (string) The transaction id for the send. Only 1 transaction is created regardless of
-                                      the number of addresses. See https://blockchain.info/tx/[transactionid]"
-  [fromaccount address-amount-maps minconf comment]
-  {:pre [(string? fromaccount)
+    \"transactionid\" (string) The transaction id for the send. Only 1
+    transaction is created regardless of the number of addresses."
+    [fromaccount address-amount-maps minconf? comment?]  {:pre
+    [(string? fromaccount)
          (vector? address-amount-maps)]})
 
 
@@ -1309,13 +1363,17 @@
   "sendrawtransaction \"hexstring\" ( allowhighfees )
 
   Submits raw transaction (serialized, hex-encoded) to local node and network.
-  
+
   Also see createrawtransaction and signrawtransaction calls.
-  
+
   Arguments:
-    1. \"hexstring\"    (string, required) The hex string of the raw transaction)
-    2. allowhighfees    (boolean, optional, default=false) Allow high fees
-    
+
+    1. \"hexstring\" (string, required) The hex string of the raw
+       transaction)
+
+    2. allowhighfees (boolean, optional, default=false) Allow high
+       fees
+
   Result:
     \"hex\"             (string) The transaction hash in hex."
   [hexstring allowhighfees?]
@@ -1324,21 +1382,28 @@
 
 (defrpc sendtoaddress
   "sendtoaddress \"dogecoinaddress\" amount ( \"comment\" \"comment-to\" )
-  
+
   Sent an amount to a given address. The amount is a real and is
   rounded to the nearest 0.00000001
-  
+
   Arguments:
-  1. \"dogecoinaddress\"  (string, required) The Dogecoin address to send to.
-  2. \"amount\"           (numeric, required) The amount in doge to send. eg 100.01
-  3. \"comment\"          (string, optional) A comment used to store what the transaction is for.
-                                    This is not part of the transaction, just kept in your wallet.
-  4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization
-                               to which you're sending the transaction. This is not part of the
-                               transaction, just kept in your wallet.
-  
+
+  1. \"dogecoinaddress\" (string, required) The Dogecoin address to
+      send to.
+
+  2. \"amount\" (numeric, required) The amount in doge to send.
+
+  3. \"comment\" (string, optional) A comment used to store what the
+     transaction is for.  This is not part of the transaction, just
+     kept in your wallet.
+
+  4. \"comment-to\" (string, optional) A comment to store the name of
+     the person or organization to which you're sending the
+     transaction. This is not part of the transaction, just kept in
+     your wallet.
+
   Result:
-  \"transactionid\"  (string) The transaction id. (view at https://blockchain.info/tx/[transactionid])."
+    \"transactionid\" (string) The transaction id."
   [dogecoinaddress amount comment? comment-to?]
   {:pre [(string? dogecoinaddress)
          (number? amount)]})
@@ -1346,12 +1411,15 @@
 
 (defrpc setaccount
   "setaccount \"dogecoinaddress\" \"account\"
-  
+
   Sets the account associated with the given address.
-  
+
   Arguments:
-    1. \"dogecoinaddress\" (string, required) The Dogecoin address to be associated with an account.
-    2. \"account\"         (string, required) The account to assign the address to."
+
+    1. \"dogecoinaddress\" (string, required) The Dogecoin address to
+       be associated with an account.
+    2. \"account\" (string, required) The account to assign the
+       address to."
   [dogecoinaddress account]
   {:pre [(string? dogecoinaddress)
          (string? account)]})
@@ -1359,15 +1427,20 @@
 
 (defrpc setgenerate
   "setgenerate generate ( genproclimit )
-  
+
   Set 'generate' true or false to turn generation on or off.
   Generation is limited to 'genproclimit' processors, -1 is unlimited.
   See the getgenerate call for the current setting.
-  
+
   Arguments:
-    1. generate         (boolean, required) Set to true to turn on generation, off to turn off.
-    2. genproclimit     (numeric, optional) Set the processor limit for when generation is on. Can be -1 for unlimited.
-                        Note: in -regtest mode, genproclimit controls how many blocks are generated immediately."
+    1. generate (boolean, required) Set to true to turn on generation,
+       off to turn off.
+
+    2. genproclimit (numeric, optional) Set the processor limit for
+       when generation is on. Can be -1 for unlimited.  Note: in
+       -regtest mode, genproclimit controls how many blocks are
+       generated immediately."
+
   [generate genproclimit?]
   {:pre [(instance? Boolean generate)]})
 
@@ -1376,10 +1449,10 @@
   "settxfee amount
 
   Set the transaction fee per kB.
-  
+
   Arguments:
     1. amount (numeric, required) The transaction fee in DOGE/kB rounded to the nearest 0.00000001
-  
+
   Result
     true|false (boolean) Returns true if successful."
   [amount]
@@ -1388,13 +1461,17 @@
 
 (defrpc signmessage
   "signmessage \"dogecoinaddress\" \"message\"
-  
+
   Sign a message with the private key of an address
-  
+
   Arguments:
-    1. \"dogecoinaddress\"  (string, required) The Dogecoin address to use for the private key.
-    2. \"message\"         (string, required) The message to create a signature of.
-  
+
+    1. \"dogecoinaddress\" (string, required) The Dogecoin address to
+       use for the private key.
+
+    2. \"message\" (string, required) The message to create a
+       signature of.
+
   Result:
     \"signature\"          (string) The signature of the message encoded in base 64."
   [dogecoinaddress message]
@@ -1411,32 +1488,42 @@
    yet be in the block chain.  The third optional argument (may be
    null) is an array of base58-encoded private keys that, if given,
    will be the only keys used to sign the transaction.
-  
+
   Arguments:
-    1. \"hexstring\"     (string, required) The transaction hex string
-    2. \"prevtxs\"       (string, optional) An json array of previous dependent transaction outputs
+
+    1. \"hexstring\" (string, required) The transaction hex string
+
+    2. \"prevtxs\" (string, optional) An json array of previous
+       dependent transaction outputs
+
          [               (json array of json objects, or 'null' if none provided)
            {
-             \"txid\":\"id\",             (string, required) The transaction id
-             \"vout\":n,                  (numeric, required) The output number
-             \"scriptPubKey\": \"hex\",   (string, required) script key
-             \"redeemScript\": \"hex\"    (string, required) redeem script
+             \"txid\":\"id\",           (string, required) The transaction id
+             \"vout\":n,                (numeric, required) The output number
+             \"scriptPubKey\": \"hex\", (string, required) script key
+             \"redeemScript\": \"hex\"  (string, required) redeem script
            }
            ,...
         ]
-    3. \"privatekeys\"     (string, optional) A json array of base58-encoded private keys for signing
+
+    3. \"privatekeys\" (string, optional) A json array of
+       base58-encoded private keys for signing
+
         [                  (json array of strings, or 'null' if none provided)
           \"privatekey\"   (string) private key in base58-encoding
           ,...
         ]
-    4. \"sighashtype\"     (string, optional, default=ALL) The signature has type. Must be one of
+
+    4. \"sighashtype\" (string, optional, default=ALL) The signature
+       has type. Must be one of
+
            \"ALL\"
            \"NONE\"
            \"SINGLE\"
            \"ALL|ANYONECANPAY\"
            \"NONE|ANYONECANPAY\"
            \"SINGLE|ANYONECANPAY\"
-    
+
   Result:
     {
       \"hex\": \"value\",   (string) The raw transaction with signature(s) (hex-encoded string)
@@ -1460,10 +1547,15 @@
   Attempts to submit new block to network.
   The 'jsonparametersobject' parameter is currently ignored.
   See https://en.bitcoin.it/wiki/BIP_0022 for full specification.
-  
-  Arguments
-  1. \"hexdata\"              (string, required) the hex-encoded block data to submit
-  2. \"jsonparametersobject\" (string, optional) object of optional parameters
+
+  Arguments 
+
+  1. \"hexdata\" (string, required) the hex-encoded block data to
+     submit
+ 
+  2. \"jsonparametersobject\" (string, optional) object of optional
+     parameters
+
       {
         \"workid\" : \"id\"   (string, optional) if the server provided a workid, it MUST be included with submissions
       }"
@@ -1472,21 +1564,21 @@
 
 (defrpc validateaddress
   "validateaddress \"dogecoinaddress\"
-  
+
   Return information about the given dogecoin address.
-  
+
   Arguments:
     1. \"dogecoinaddress\"     (string, required) The dogecoin address to validate
-  
+
   Result:
     {
-      \"isvalid\" : true|false,         (boolean) If the address is valid or not. If not, this is the only property returned.
+      \"isvalid\" : true|false,          (boolean) If the address is valid or not. If not, this is the only property returned.
       \"address\" : \"dogecoinaddress\", (string) The dogecoin address validated
-      \"ismine\" : true|false,          (boolean) If the address is yours or not
-      \"isscript\" : true|false,        (boolean) If the key is a script
-      \"pubkey\" : \"publickeyhex\",    (string) The hex value of the raw public key
-      \"iscompressed\" : true|false,    (boolean) If the address is compressed
-      \"account\" : \"account\"         (string) The account associated with the address, \"\" is the default account
+      \"ismine\" : true|false,           (boolean) If the address is yours or not
+      \"isscript\" : true|false,         (boolean) If the key is a script
+      \"pubkey\" : \"publickeyhex\",     (string) The hex value of the raw public key
+      \"iscompressed\" : true|false,     (boolean) If the address is compressed
+      \"account\" : \"account\"          (string) The account associated with the address, \"\" is the default account
     }"
   [dogecoinaddress]
   {:pre [(string? dogecoinaddress)]})
@@ -1496,11 +1588,15 @@
   "verifychain ( checklevel numblocks )
 
   Verifies blockchain database.
-  
+
   Arguments:
-    1. checklevel   (numeric, optional, 0-4, default=3) How thorough the block verification is.
-    2. numblocks    (numeric, optional, default=288, 0=all) The number of blocks to check.
-  
+
+    1. checklevel (numeric, optional, 0-4, default=3) How thorough the
+       block verification is.
+
+    2. numblocks (numeric, optional, default=288, 0=all) The number of
+       blocks to check.
+
   Result:
     true|false      (boolean) Verified or not."
   [])
@@ -1508,14 +1604,19 @@
 
 (defrpc verifymessage
   "verifymessage \"dogecoinaddress\" \"signature\" \"message\"
-  
+
   Verify a signed message
-  
+
   Arguments:
-    1. \"dogecoinaddress\"  (string, required) The dogecoin address to use for the signature.
-    2. \"signature\"       (string, required) The signature provided by the signer in base 64 encoding (see signmessage).
-    3. \"message\"         (string, required) The message that was signed.
-    
+
+    1. \"dogecoinaddress\" (string, required) The dogecoin address to
+       use for the signature.
+  
+    2. \"signature\" (string, required) The signature provided by the
+       signer in base 64 encoding (see signmessage).
+
+    3. \"message\" (string, required) The message that was signed.
+
   Result:
     true|false   (boolean) If the signature is verified or not."
   [dogecoinaddress signature message]
