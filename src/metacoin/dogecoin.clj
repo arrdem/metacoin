@@ -15,6 +15,9 @@
   `(metacoin/defrpc "dogecoin" ~@m0ar))
 
 
+(declare validateaddress)
+
+
 (defrpc addmultisigaddress
   "addmultisigaddress nrequired [\"key\",...] ( \"account\" )
 
@@ -137,7 +140,9 @@
 
   [txids-map addrs-amounts-map]
   {:pre [(map? txids-map)
-         (map? addrs-amounts-map)]})
+         (map? addrs-amounts-map)
+         (every? validateaddress (keys addrs-amounts-map))
+         (evert? number? (vals addrs-amounts-map))]})
 
 
 (defrpc decoderawtransaction
@@ -279,7 +284,8 @@
   Result:
     \"accountname\" (string) the account address."
   [dogecoinaddress]
-  {:pre [(string? dogecoinaddress)]})
+  {:pre [(string? dogecoinaddress)
+         (validateaddress dogecoinaddress)]})
 
 
 (defrpc getaccountaddress
@@ -338,35 +344,17 @@
 
 
 (defrpc getaddressesbyaccount
-  "getaddednodeinfo dns ( \"node\" )
+  "getaddressesbyaccount \"account\"
 
-  Returns information about the given added node, or all added nodes
-  (note that onetry addnodes are not listed here)
-  If dns is false, only a list of added nodes will be provided,
-  otherwise connected information will also be available.
-
+  Returns the list of addresses for the given account.
+  
   Arguments:
 
-    1. dns (boolean, required) If false, only a list of added nodes
-       will be provided, otherwise connected information will also be
-       available.
-
-    2. \"node\" (string, optional) If provided, return information
-       about this specific node, otherwise all nodes are returned.
-
+    1. \"account\" (string, required) The account name.
+  
   Result:
-    [
-      {
-        \"addednode\" : \"192.168.0.201\",   (string) The node ip address
-        \"connected\" : true|false,          (boolean) If connected
-        \"addresses\" : [
-           {
-             \"address\" : \"192.168.0.201:22556\",  (string) The Dogecoin server host and port
-             \"connected\" : \"outbound\"           (string) connection, inbound or outbound
-           }
-           ,...
-         ]
-      }
+    [                     (json array of string)
+      \"dogecoinaddress\"  (string) a Dogecoin address associated with the given account
       ,...
     ]"
   [account]
@@ -872,7 +860,8 @@
 
   Result:
     amount (numeric) The total amount in doge received for this account."
-  [account minconf?])
+  [account minconf?]
+  {:pre [(string? account)]})
 
 
 (defrpc getreceivedbyaddress
@@ -1053,7 +1042,9 @@
   Returns Object that has account names as keys, account balances as values.
 
   Arguments:
-    1. minconf (numeric, optional, default=1) Only onclude transactions with at least this many confirmations
+
+    1. minconf (numeric, optional, default=1) Only onclude
+       transactions with at least this many confirmations
 
   Result:
     {                      (json object where keys are account names, and values are numeric balances
@@ -1159,8 +1150,12 @@
   Get all transactions in blocks since block [blockhash], or all transactions if omitted
 
   Arguments:
-    1. \"blockhash\"   (string, optional) The block hash to list transactions since
-    2. target-confirmations:    (numeric, optional) The confirmations required, must be 1 or more
+
+    1. \"blockhash\" (string, optional) The block hash to list
+       transactions since
+
+    2. target-confirmations: (numeric, optional) The confirmations
+       required, must be 1 or more
 
   Result:
     {
@@ -1201,7 +1196,7 @@
        transactions to return
 
     3. from (numeric, optional, default=0) The number of transactions
-        to skip
+       to skip
 
   Result:
     [
@@ -1446,19 +1441,19 @@
 
   Arguments:
 
-  1. \"dogecoinaddress\" (string, required) The Dogecoin address to
-      send to.
-
-  2. \"amount\" (numeric, required) The amount in doge to send.
-
-  3. \"comment\" (string, optional) A comment used to store what the
-     transaction is for.  This is not part of the transaction, just
-     kept in your wallet.
-
-  4. \"comment-to\" (string, optional) A comment to store the name of
-     the person or organization to which you're sending the
-     transaction. This is not part of the transaction, just kept in
-     your wallet.
+    1. \"dogecoinaddress\" (string, required) The Dogecoin address to
+        send to.
+  
+    2. \"amount\" (numeric, required) The amount in doge to send.
+  
+    3. \"comment\" (string, optional) A comment used to store what the
+       transaction is for.  This is not part of the transaction, just
+       kept in your wallet.
+  
+    4. \"comment-to\" (string, optional) A comment to store the name of
+       the person or organization to which you're sending the
+       transaction. This is not part of the transaction, just kept in
+       your wallet.
 
   Result:
     \"transactionid\" (string) The transaction id."
@@ -1511,7 +1506,8 @@
 
   Arguments:
 
-    1. amount (numeric, required) The transaction fee in DOGE/kB rounded to the nearest 0.00000001
+    1. amount (numeric, required) The transaction fee in DOGE/kB
+       rounded to the nearest 0.00000001
 
   Result:
     true|false (boolean) Returns true if successful."
