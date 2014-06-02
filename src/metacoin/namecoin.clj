@@ -19,16 +19,20 @@
   "backupwallet <destination>
 
   Safely copies wallet.dat to destination, which can be a directory or a path with filename."
-  [destination])
+  [destination]
+  {:pre [(string? destination)]})
 
 
 (defrpc buildmerkletree
   "buildmerkletree <obj>...
 
   build a merkle tree with the given hex-encoded objects."
-  [objs])
+  [objs]
+  {:pre [(every? string? objs)]})
 
 
+;; FIXME
+;;   due to argument order this RPC method is probably broken
 (defrpc createrawtransaction
   "createrawtransaction [{\"txid\":txid,\"vout\":n},...] {address:amount,...}
 
@@ -44,7 +48,8 @@
   "decoderawtransaction <hex string>
 
   Return a JSON object representing the serialized, hex-encoded transaction."
-  [hex-string])
+  [hex-string]
+  {:pre [(string? hex-string)]})
 
 
 (defrpc deletetransaction
@@ -52,42 +57,48 @@
 
   Normally used when a transaction cannot be confirmed due to a double
   spend. Restart the program after executing this call."
-  [txid])
+  [txid]
+  {:pre [(string? txid)]})
 
 
 (defrpc dumpprivkey
   "dumpprivkey <namecoinaddress>
 
   Reveals the private key corresponding to <namecoinaddress>."
-  [namecoinaddress])
+  [namecoinaddress]
+  {:pre [(string? namecoinaddress)]})
 
 
 (defrpc encryptwallet
   "encryptwallet <passphrase>
 
   Encrypts the wallet with <passphrase>."
-  [passphrase])
+  [passphrase]
+  {:pre [(string?? passphrase)]})
 
 
 (defrpc getaccount
   "getaccount <namecoinaddress>
 
   Returns the account associated with the given address."
-  [namecoinaddress])
+  [namecoinaddress]
+  {:pre [(string? namecoinaddress)]})
 
 
 (defrpc getaccountaddress
   "getaccountaddress <account>
 
   Returns the current Namecoin address for receiving payments to this account."
-  [account])
+  [account]
+  {:pre [(string? account)]})
 
 
 (defrpc getaddressesbyaccount
   "getaddressesbyaccount <account>
 
   Returns the list of addresses for the given account."
-  [account])
+  [account]
+  {:pre [(string? account)]})
 
 
 (defrpc getauxblock
@@ -97,7 +108,11 @@
   new block hash. If <hash>, <auxpow> is specified, tries to solve the
   block based on the aux proof of work and returns true if it was
   successful."
-  [hash auxpow])
+  [hash auxpow]
+  {:pre [(or (and (= nil hash)
+                  (= nil auxpow))
+             (and (string? hash)
+                  (string? auxpow)))]})
 
 
 (defrpc getbalance
@@ -113,14 +128,16 @@
   "getblock hash
 
   Dumps the block with specified hash."
-  [hash])
+  [hash]
+  {:pre [(string? hash)]})
 
 
 (defrpc getblockbycount
   "getblockbycount height
 
   Dumps the block existing at specified height."
-  [height])
+  [height]
+  {:pre [(number height)]})
 
 
 (defrpc getblockcount
@@ -133,7 +150,8 @@
   "getblockhash <index>
 
   Returns hash of block in best-block-chain at <index>."
-  [index])
+  [index]
+  {:pre [(number? index)]})
 
 
 (defrpc getblocknumber
@@ -189,7 +207,9 @@
     \"time\" : timestamp appropriate for next block
     \"bits\" : compressed target of next block
   If [data] is specified, tries to solve the block and returns true if it was successful."
-  [data])
+  [data?]
+  {:pre [(or (= nil data)
+             (string? data))]})
 
 
 (defrpc getnewaddress
@@ -198,7 +218,9 @@
   Returns a new Namecoin address for receiving payments.  If [account]
   is specified (recommended), it is added to the address book so
   payments received with the address will be credited to [account]."
-  [account])
+  [account?]
+  {pre [(or (= nil account?)
+            (string? account?))]})
 
 
 (defrpc getrawmempool
@@ -214,7 +236,11 @@
   If verbose=0, returns a string that is serialized, hex-encoded data
   for <txid>.  If verbose is non-zero, returns an Object with
   information about <txid>."
-  [txid verbose?])
+  [txid verbose?]
+  {:pre [(string? txid)
+
+         (or (= nil verbose?)
+             (number? verbose?))]})
 
 
 (defrpc getreceivedbyaccount
@@ -222,7 +248,11 @@
 
   Returns the total amount received by addresses with <account> in
   transactions with at least [minconf] confirmations."
-  [account minconf?])
+  [account minconf?]
+  {:pre [(string? account)
+
+         (or (= nil minconf?)
+             (number? minconf?))]})
 
 
 (defrpc getreceivedbyaddress
@@ -230,14 +260,19 @@
 
   Returns the total amount received by <namecoinaddress> in
   transactions with at least [minconf] confirmations."
-  [namecoinaddress minconf?])
+  [namecoinaddress minconf?]
+  {:pre [(string? namecoinaddress)
+
+         (or (= nil minconf?)
+             (number? minconf?))]})
 
 
 (defrpc gettransaction
   "gettransaction <txid>
 
   Get detailed information about <txid>"
-  [txid])
+  [txid]
+  {:pre [(string? txid)]})
 
 
 (defrpc getwork
@@ -252,6 +287,8 @@
   [data])
 
 
+;; FIXME
+;;   Due to the branch* form of the arguments this method is likely broken.
 (defrpc getworkaux
   "getworkaux <aux>
    getworkaux '' <data>
@@ -270,7 +307,7 @@
   If <data> is specified and 'submit', tries to solve the block for this (parent) chain and returns true if it was successful.If <data> is specified and empty first argument, returns the aux merkle root, with size and nonce.If <data> and <chain-index> are specified, creates an auxiliary proof of work for the chain specified and returns:
     \"aux\" : merkle root of auxiliary chain block hashes
     \"auxpow\" : aux proof of work to submit to aux chain."
-  [op? data? chain-index? branch?])
+  [op? data? chain-index? branches?])
 
 
 (defrpc help
@@ -284,21 +321,37 @@
   "importaddress <namecoinaddress> [label] [rescan=true]
 
   Adds an address that can be watched as if it were in your wallet but cannot be used to spend."
-  [namecoinaddress label rescan?])
+  [namecoinaddress label? rescan?]
+  {:pre [(string? namecoinaddress)
+         (or (nil? label?)
+             (string? label?))
+         (and (not-nil? label)
+              (not-nil? rescan?)
+              (or (= true rescan?)
+                  (= false rescan?)))]})
 
 
 (defrpc importprivkey
   "importprivkey <namecoinprivkey> [label] [rescan=true]
 
   Adds a private key (as returned by dumpprivkey) to your wallet."
-  [namecoinprivkey label? rescan?])
+  [namecoinprivkey label? rescan?]
+  {:pre [(string? namecoinprivkey)
+         (or (nil? label?)
+             (string? label?))
+         (and (not-nil? label)
+              (not-nil? rescan?)
+              (or (= true rescan?)
+                  (= false rescan?)))]})
 
 
 (defrpc listaccounts
   "listaccounts [minconf=1]
 
   Returns Object that has account names as keys, account balances as values."
-  [minconf?])
+  [minconf?]
+  {:pre [(or (nil? minconf?)
+             (number? minconf?))]})
 
 
 (defrpc listaddressgroupings
@@ -321,7 +374,14 @@
   total amount received by addresses with this account
   \"confirmations\" : number of confirmations of the most recent
   transaction included."
-  [minconf? includeempty?])
+  [minconf? includeempty?]
+  {:pre [(or (nil? minconf?)
+             (number? minconf?))
+
+         (or (not minconf?)
+             (and minconf?
+                  (or (= true includeempty?)
+                      (= false includeempty?))))]})
 
 
 (defrpc listreceivedbyaddress
@@ -334,7 +394,14 @@
     \"account\" : the account of the receiving address
     \"amount\" : total amount received by the address
     \"confirmations\" : number of confirmations of the most recent transaction included."
-  [minconf? includeempty?])
+  [minconf? includeempty?]
+  {:pre [(or (nil? minconf?)
+             (number? minconf?))
+
+         (or (not minconf?)
+             (and minconf?
+                  (or (= true includeempty?)
+                      (= false includeempty?))))]})
 
 
 (defrpc listtransactions
@@ -342,7 +409,19 @@
 
   Returns up to [count] most recent transactions skipping the first
   [from] transactions for account [account]."
-  [account? count? from?])
+  [account? count? from?]
+  {:pre [(or (nil? account?)
+             (string? account?))
+
+         (or (nil? account?)
+             (and account?
+                  (or (nil? count?)
+                      (number? count?))))
+
+         (or (nil? count?)
+             (and count?
+                  (or (nil? from)
+                      (number? from))))]})
 
 
 (defrpc listunspent
@@ -353,56 +432,129 @@
   include txouts paid to specified addresses.  Results are an array of
   Objects, each of which has: {txid, vout, scriptPubKey, amount,
   confirmations}"
-  [minconf? maxconf? addr-array?])
+  [minconf? maxconf? addr-array?]
+  {:pre [(or (nil? minconf?)
+             (number? minconf?))
+
+         (or (nil? minconf?)
+             (and minconf?
+                  (or (nil? maxconf?)
+                      (number? maxconf?))))
+
+         (or (nil? maxconf?)
+             (and maxconf?
+                  (or (nil? addr-array?)
+                      (every? string? addr-array?))))]})
 
 
 (defrpc move
   "move <fromaccount> <toaccount> <amount> [minconf=1] [comment]
 
   Move from one account in your wallet to another."
-  [fromaccount toaccount amount minconf? comment?])
+  [fromaccount toaccount amount minconf? comment?]
+  {:pre [(string? fromaccount)
+         (string? toaccount)
+         (number? amount)
+
+         (or (nil? minconf?)
+             (number? minconf?))
+
+         (or (nil? minconf?)
+             (and minconf?
+                  (or (string? comment?)
+                      (nil? comment?))))]})
 
 
 (defrpc sendfrom
   "sendfrom <fromaccount> <tonamecoinaddress> <amount> [minconf=1] [comment] [comment-to]
 
   <amount> is a real and is rounded to the nearest 0.01."
-  [fromaccount tonamecoinaddress amount minconf? comment? comment-to?])
+  [fromaccount tonamecoinaddress amount minconf? comment? comment-to?]
+  {:pre [(string? fromaccount)
+         (string? tonamecoinaddress)
+         (number? amount)
+
+         (or (nil? minconf?)
+             (number? minconf?))
+
+         (or (nil? minconf?)
+             (and minconf?
+                  (or (string? comment?)
+                      (nil? comment?))))
+
+         (or (nil? comment?)
+             (and comment?
+                  (or (string? to-comment?)
+                      (nil? to-comment?))))]})
 
 
 (defrpc sendmany
   "sendmany <fromaccount> {address:amount,...} [minconf=1] [comment]
 
   amounts are double-precision floating point numbers rounded to 0.01."
-  [fromaccount addr-ammount-map minconf? comment?])
+  [fromaccount addr-amount-map minconf? comment?]
+  {:pre [(string? fromaccount)
+         (every? string? (keys addr-amount-map))
+         (every? number? (vals addr-amount-map))
+
+         (or (nil? minconf?)
+             (number? minconf?))
+
+         (or (nil? minconf?)
+             (and minconf?
+                  (or (string? comment?)
+                      (nil? comment?))))]})
 
 
 (defrpc sendrawtransaction
   "sendrawtransaction <hex string>
 
   Submits raw transaction (serialized, hex-encoded) to local node and network."
-  [hex-string])
+  [hex-string]
+  {:pre [(string? hex-string)]})
 
 
 (defrpc sendtoaddress
   "sendtoaddress <namecoinaddress> <amount> [comment] [comment-to]
 
   <amount> is a real and is rounded to the nearest 0.01."
-  [namecoinaddress amount comment? comment-to?])
+  [namecoinaddress amount comment? comment-to?]
+  {:pre [(string? namecoinaddress)
+         (number? amount)
+
+         (or (nil? comment?)
+             (string? comment?))
+
+         (or (nil? comment?)
+             (and comment?
+                  (or (nil? comment-to?)
+                      (string? comment-to?))))]})
 
 
 (defrpc sendtoname
   "sendtoname <namecoinname> <amount> [comment] [comment-to]
 
   <amount> is a real and is rounded to the nearest 0.01."
-  [namecoinname amount comment? comment-to?])
+  [namecoinname amount comment? comment-to?]
+  {:pre [(string? namecoinname)
+         (number? amount)
+
+         (or (nil? comment?)
+             (string? comment?))
+
+         (or (nil? comment?)
+             (and comment?
+                  (or (nil? comment-to?)
+                      (string? comment-to?))))]})
 
 
 (defrpc setaccount
   "setaccount <namecoinaddress> <account>
 
   Sets the account associated with the given address."
-  [namecoinaddress account])
+  [namecoinaddress account]
+  {:pre [(string? namecoinaddress)
+         (string? account)]})
 
 
 (defrpc setgenerate
@@ -410,28 +562,37 @@
 
   <generate> is true or false to turn generation on or off.
   Generation is limited to [genproclimit] processors, -1 is unlimited."
-  [generate genproclimit?])
+  [generate genproclimit?]
+  {:pre [(or (= true generate)
+             (= false generate))
+
+         (or (nil? genproclimit?)
+             (number? genproclimit?))]})
 
 
 (defrpc setmininput
   "setmininput <amount>
 
   <amount> is a real and is rounded to the nearest 0.00000001"
-  [amount])
+  [amount]
+  {:pre [(number? amount)]})
 
 
 (defrpc settxfee
   "settxfee <amount>
 
   <amount> is a real and is rounded to the nearest 0.00000001"
-  [amount])
+  [amount]
+  {:pre [(number? amount)]})
 
 
 (defrpc signmessage
   "signmessage <namecoinaddress> <message>
 
   Sign a message with the private key of an address."
-  [namecoinaddress message])
+  [namecoinaddress message]
+  {:pre [(string? namecoinaddress)
+         (string? message)]})
 
 
 (defrpc signrawtransaction
@@ -448,7 +609,18 @@
   Returns json object with keys:
     hex : raw transaction with signature(s) (hex-encoded string)
     complete : 1 if transaction has a complete set of signature (0 if not)"
-  [hex-string prior-tx-outputs? private-keys? sighashtype?])
+  [hex-string prior-tx-outputs? private-keys? sighashtype?]
+  {:pre [(string? hex-string)
+
+         (or (nil? prior-tx-outputs?)
+             (every? output? prior-tx-outputs?))
+
+         (every? string? private-keys?)
+
+         (or (nil? sighashtype?)
+             (contains? #{"ALL" "NONE" "SINGLE" "ALL|ANYONECANPAY"
+                          "NONE|ANYONECANPAY" "SINGLE|ANYONECANPAY."}
+                        sighashtype?))]})
 
 
 (defrpc stop
@@ -462,17 +634,21 @@
   "validateaddress <namecoinaddress>
 
   Return information about <namecoinaddress>."
-  [namecoinaddress])
+  [namecoinaddress]
+  {:pre [(string? namecoinaddress)]})
 
 
 (defrpc verifymessage
   "verifymessage <namecoinaddress> <signature> <message>
 
   Verify a signed message."
-  [namecoinaddress signature message])
+  [namecoinaddress signature message]
+  {:pre [(string? namecoinaddress)
+         (string? signature)
+         (string? message)]})
 
 
-(defrpc name_clean 
+(defrpc name_clean
   "name_clean
 
   Clean unsatisfiable transactions from the wallet - including
@@ -480,52 +656,68 @@
   [])
 
 
-(defrpc name_debug 
+(defrpc name_debug
   "name_debug
 
   Dump pending transactions id in the debug file."
   [])
 
 
-(defrpc name_debug1 
+(defrpc name_debug1
   "name_debug1 <name>
 
   Dump name blocks number and transactions id in the debug file."
-  [name])
+  [name]
+  {:pre [(string? name)]})
 
 
-(defrpc name_filter 
+(defrpc name_filter
   "name_filter [regexp] [maxage=36000] [from=0] [nb=0] [stat]
 
   scan and filter names."
-  [regexp maxage? from? nb? stat?])
+  [regexp maxage? from? nb? stat?]
+  {:pre [(string? regexp)
+         (or (nil? maxage?)
+             (number? maxage?))
+         (or (nil? from?)
+             (number? from?))
+         (or (nil? nb?)
+             (number? nb?))]})
 
 
-(defrpc name_firstupdate 
-  "name_firstupdate <name> <rand> [<tx>] <value>
+(defrpc name_firstupdate
+  "name_firstupdate <name> <rand> [<tx>] [<value>]
 
-  Perform a first update after a name_new reservation.\nNote that the
+  Perform a first update after a name_new reservation. Note that the
   first update will go into a block 12 blocks after the name_new, at
   the soonest."
-  [name rand tx? value?])
+  [name rand tx? value?]
+  {:pre [(string? name)
+         (string? rand)]})
 
 
-(defrpc name_history 
-  "name_history <name>\nList all name values of a name.\n"
-  [name])
+(defrpc name_history
+  "name_history <name>
+
+  List all name values of a name."
+  [name]
+  {:pre [(string? name)]})
 
 
-(defrpc name_list 
-  "name_list [<name>]\nlist my own names"
+(defrpc name_list
+  "name_list [<name>]
+
+  list my own names"
   [name?])
 
 
-(defrpc name_new 
+(defrpc name_new
   "name_new <name>"
-  [name])
+  [name]
+  {:pre [(string? name)]})
 
 
-(defrpc name_scan 
+(defrpc name_scan
   "name_scan [<start-name>] [<max-returned>]
 
   scan all names, starting at start-name and returning a maximum
@@ -533,15 +725,18 @@
   [start-name? max-returned?])
 
 
-(defrpc name_show 
+(defrpc name_show
   "name_show <name>
 
   Show values of a name."
-  [name])
+  [name]
+  {:pre [(string? name)]})
 
 
-(defrpc name_update 
+(defrpc name_update
   "name_update <name> <value> [<toaddress>]
 
   Update and possibly transfer a name."
-  [name value toaddress?])
+  [name value toaddress?]
+  {:pre [(string? name)
+         (string? value)]})
