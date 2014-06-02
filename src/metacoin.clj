@@ -71,6 +71,10 @@
        ~premap
        (let [params# (vec (take-while not-nil? ~args))
              ~'config (complete-rpc-config ~coin ~'config)]
+         (when (and (:coin ~'config)
+                    (not (= (:coin ~'config) ~coin)))
+           (.write *err* (format "Warning: coin method mismatch!\n    Expected coin: \"%s\" got: \"%s\"\n    continuing..."
+                                 ~coin (:coin ~'config))))
          (rpc-call ~'config ~(str name) params#)))))
 
 (defmacro defrpc
